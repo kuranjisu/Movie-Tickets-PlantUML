@@ -1,0 +1,49 @@
+@startuml
+title Movie Booking System
+actor User
+actor Administrator
+participant UI
+participant Catalog
+participant Database
+participant Payments
+
+=== Browse Movies ===
+User -> UI : GET /index/user:id
+UI -> User : 200 OK Response
+UI -> Catalog : GET /movies
+Catalog -> UI : GET all list of matching movies
+UI -> User : 200 OK - Display all list of matching movies
+
+=== View Movie Details ===
+UI -> Catalog : GET /movies/movie:id
+Catalog -> UI : 200 OK Response
+Catalog -> Database : GET or Query movie details
+Database -> Catalog : Return movie details, including showtimes
+Catalog -> UI : Response from GET
+UI -> User : 200 OK - Display movie details, including showtimes
+
+=== Select Seats ===
+User -> UI : GET /movies/movie:id/seats
+UI -> User : 200 OK Response
+UI -> Database : GET or Query available seats
+Database -> UI : Return available seats
+UI -> Payments : GET /movie:id/seats/seat:id - Reserve seats and process payment
+Payments --> UI : Confirm reservation and payment
+UI --> User : Display confirmation page
+
+=== Manage Movies ===
+Administrator -> UI : Add movie
+UI -> Catalog : POST /movies/movie
+Catalog -> UI : 201 created
+Administrator -> UI : Remove movie
+UI -> Vatalog : DELETE /movies/movie:id
+Catalog -> UI : 200 deleted
+
+=== Payment ===
+Catalog -> Cart : GET /payment
+Payment -> Gateway : POST /payment
+Gateway -> Payment : 200 OK
+Payment -> Gateway : PUT /payment:id
+Gateway -> Payment : 204 NO CONTENT
+
+@enduml
